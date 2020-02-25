@@ -2,3 +2,4 @@ runs/
 model_saved/
 runs
 model_saved
+.DS_Store
