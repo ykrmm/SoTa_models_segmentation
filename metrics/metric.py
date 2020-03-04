@@ -1,14 +1,6 @@
 import torch
 import numpy as np
 
-## Metric code
-### pixel accuracy 
-
-
-
-### mean accuracy
-
-### IOU
 
 
 SMOOTH = 1e-6
@@ -30,43 +22,71 @@ def iou(outputs: torch.Tensor, labels: torch.Tensor):
 
 
  
-iou(next(iter(dataloader_train))[1],next(iter(dataloader_train_val))[1])
+
+def _fast_hist(label_true, label_pred, n_class):
+    mask = (label_true >= 0) & (label_true < n_class)
+    hist = np.bincount(
+        n_class * label_true[mask].astype(int) + label_pred[mask],
+        minlength=n_class ** 2,
+    ).reshape(n_class, n_class)
+    return hist
+
+
+def scores(label_trues, label_preds, n_class=21):
+    label_trues = label_trues.cpu().numpy()
+    label_preds = label_preds.cpu().numpy()
+    hist = np.zeros((n_class, n_class))
+    for lt, lp in zip(label_trues, label_preds):
+        hist += _fast_hist(lt.flatten(), lp.flatten(), n_class)
+    acc = np.diag(hist).sum() / hist.sum()
+    acc_cls = np.diag(hist) / hist.sum(axis=1)
+    acc_cls = np.nanmean(acc_cls)
+    iu = np.diag(hist) / (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
+    valid = hist.sum(axis=1) > 0  # added
+    mean_iu = np.nanmean(iu[valid])
+    freq = hist.sum(axis=1) / hist.sum()
+    fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
+    cls_iu = dict(zip(range(n_class), iu))
+
+    return {
+        "Pixel Accuracy": acc,
+        "Mean Accuracy": acc_cls,
+        "Frequency Weighted IoU": fwavacc,
+        "Mean IoU": mean_iu,
+        "Class IoU": cls_iu,
+    }
+
+def evaluate_model(model,val_loader,criterion=nn.CrossEntropyLoss(ignore_index=21),nclass=21):
+  loss_test = []
+  iou_test = []
+  pixel_accuracy = []
+  weight_iou = []
+  for i,(x,mask) in enumerate(dataloader_val):
+        x = x.to(device)
+        mask = mask.to(device)
+
+        model.eval()
+        pred = model(x)
+
+
+        loss = criterion(pred,mask)
+        loss_test.append(loss.item())
+        
+        s = scores(pred.max(dim=1)[1],mask, n_class=nclass)
+        """
+          return {
+            "Pixel Accuracy": acc,
+            "Mean Accuracy": acc_cls,
+            "Frequency Weighted IoU": fwavacc,
+            "Mean IoU": mean_iu,
+            "Class IoU": cls_iu,
+        }
+        """
+        iou_test.append(s["Mean IoU"])
+        pixel_accuracy.append(s["Pixel Accuracy"])
+        weight_iou.append(s["Frequency Weighted IoU"])
 
    
-# ### frequency weighted IU
 
- """
-
-def mean_iou(hist_matrix, class_names):
-    classes = len(class_names)
-    class_scores = np.zeros((classes))
-    for i in range(classes):
-        class_scores[i] = hist_matrix[i,i]/(max(1,np.sum(hist_matrix[i,:])+np.sum(hist_matrix[:,i])-hist_matrix[i,i]))
-        print('class',class_names[i],'miou',class_scores[i])
-    print('Mean IOU:',np.mean(class_scores))
-    return class_scores
-
-def mean_pixel_accuracy(hist_matrix, class_names):
-    classes = len(class_names)
-    class_scores = np.zeros((classes))
-    for i in range(classes):
-        class_scores[i] = hist_matrix[i,i]/(max(1,np.sum(hist_matrix[i,:])))
-        print('class',class_names[i],'mean_pixel_accuracy',class_scores[i])
-    return class_scores
-
-def pixel_accuracy(hist_matrix):
-    num = np.trace(hist_matrix)
-    p_a =  num/max(1,np.sum(hist_matrix).astype('float'))
-    print('Pixel accuracy:',p_a)
-    return p_a
-
-def freq_weighted_miou(hist_matrix, class_names):
-    classes = len(class_names)
-    class_scores = np.zeros((classes))
-    for i in range(classes):
-        class_scores[i] = np.sum(hist_matrix[i,:])*hist_matrix[i,i]/(max(1,np.sum(hist_matrix[i,:])))
-    fmiou = np.sum(class_scores)/np.sum(hist_matrix).astype('float')
-    print('Frequency Weighted mean accuracy:',fmiou)
-    return fmiou
-    
- """
+  print("Mean IOU :",np.array(iou_test).mean(),"Frequency Weighted IOU :",np.array(weight_iou).mean(),\
+        "Pixel Accuracy :",np.array(pixel_accuracy).mean(),"Loss Validation :",np.array(loss_test).mean())
