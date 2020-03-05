@@ -38,19 +38,11 @@ class FCN32_VGG16(torch.nn.Module): # Archi FCN-32s du papier
         self.relu2 = nn.ReLU(inplace=True)
         self.dropout = nn.Dropout()
         self.conv2 = nn.Conv2d(4096,4096,kernel_size=(1,1),padding=2)
-        self.conv3 = nn.Conv2d(4096,21,kernel_size=(1,1),padding=1)
-
-        
-        fc1 = vgg16.classifier[0].state_dict()
-
-
-        
+        self.conv3 = nn.Conv2d(4096,21,kernel_size=(1,1),padding=1)       
 
         ### get the weights from the fc layer
         #self.conv1.load_state_dict({"weight":fc1["weight"].view(4096, 512, 7, 7),
          #                         "bias":fc1["bias"]})
-
-
 
         self.conv1.weight = nn.Parameter(vgg16.classifier[0].weight.view(4096,512,7,7))
         self.conv1.bias = vgg16.classifier[0].bias
@@ -86,7 +78,7 @@ class FCN32_VGG16(torch.nn.Module): # Archi FCN-32s du papier
 
 
 
-def fcn32(device):
+def get_fcn32(device):
     vgg16 = models.vgg16(pretrained=True)
     fcn32 = FCN32_VGG16(vgg16)
     fcn32.to(device)

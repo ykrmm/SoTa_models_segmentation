@@ -1,4 +1,3 @@
-%matplotlib inline
 import argparse
 import os
 import random
@@ -40,7 +39,7 @@ def to_tensor_target(img):
 
 
 class VOC_Dataset:
-    def __init__(self,batch_size=20,year=year,dataroot='/home/yannis/Documents/stage_segmentation/dataset'):
+    def __init__(self,batch_size=20,year='2012',dataroot='/home/yannis/Documents/stage_segmentation/dataset'):
 
       dataroot = os.path.join(dataroot,year)
       self.train_dataset = dset.VOCSegmentation(dataroot,year=year, image_set='train', download=True,transform=transforms.Compose([
@@ -66,9 +65,9 @@ class VOC_Dataset:
                     'cow', 'diningtable', 'dog', 'horse',
                     'motorbike', 'person', 'pottedplant',
                     'sheep', 'sofa', 'train', 'tvmonitor')
-      self.NUM_CLASSES = len(VOC_CLASSES) + 1
-      self.dataloader_train = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size,shuffle=True)
-      self.dataloader_val = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size)
+      self.NUM_CLASSES = len(self.VOC_CLASSES) + 1
+      self.dataloader_train = torch.utils.data.DataLoader(self.train_dataset, batch_size=batch_size,shuffle=True)
+      self.dataloader_val = torch.utils.data.DataLoader(self.val_dataset, batch_size=batch_size)
 
     def get_dataset(self):
       """

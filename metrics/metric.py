@@ -15,9 +15,9 @@ def iou(outputs: torch.Tensor, labels: torch.Tensor):
     
     iou = (intersection + SMOOTH) / (union + SMOOTH)  # We smooth our devision to avoid 0/0
     
-    #thresholded = torch.clamp(20 * (iou - 0.5), 0, 10).ceil() / 10  # This is equal to comparing with thresolds
+    thresholded = torch.clamp(20 * (iou - 0.5), 0, 10).ceil() / 10  # This is equal to comparing with thresolds
     
-    return iou  # Or thresholded.mean() if you are interested in average across the batch
+    return float(iou.mean()),float(thresholded.mean()) # Or thresholded.mean() if you are interested in average across the batch
     
 
 
@@ -56,12 +56,12 @@ def scores(label_trues, label_preds, n_class=21):
         "Class IoU": cls_iu,
     }
 
-def evaluate_model(model,val_loader,criterion=nn.CrossEntropyLoss(ignore_index=21),nclass=21):
+def evaluate_model(model,val_loader,criterion=torch.nn.CrossEntropyLoss(ignore_index=21),nclass=21,device="cpu"):
   loss_test = []
   iou_test = []
   pixel_accuracy = []
   weight_iou = []
-  for i,(x,mask) in enumerate(dataloader_val):
+  for i,(x,mask) in enumerate(val_loader):
         x = x.to(device)
         mask = mask.to(device)
 

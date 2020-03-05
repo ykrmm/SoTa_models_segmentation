@@ -27,19 +27,29 @@ from collections import Counter
 from torch.utils.tensorboard import SummaryWriter
 
 
+# mon code 
+from utils import dataset
+from metrics import metric
+from models import fcn32,fcn16,fcn8
 
 
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+
+voc = dataset.VOC_Dataset(dataroot='/Users/ykarmim/Documents/Cours/Master/stage_segmentation/dataset')
+dataloader_train,dataloader_val = voc.get_dataloader()
+model = fcn32.get_fcn32(device)
 
 learning_rate = 10e-4
 moment = 0.9
-optimizer = torch.optim.SGD(fcn32.parameters(),lr=learning_rate,momentum=moment, weight_decay=2e-4)
+optimizer = torch.optim.SGD(model.parameters(),lr=learning_rate,momentum=moment, weight_decay=2e-4)
 n_epochs = 175
 writer = SummaryWriter()
 criterion = nn.CrossEntropyLoss(ignore_index=21)
 
 
-SAVE_DIR = '/tmp/model'
+SAVE_DIR = '/Users/ykarmim/Documents/Cours/Master/stage_segmentation/SoTa_models/saved_model'
 iou_train = []
 loss_train = []
 iou_test = []
@@ -51,42 +61,51 @@ for ep in range(n_epochs):
     print("EPOCH",ep)
 
     for i,(x,mask) in enumerate(dataloader_train):
+          optimizer.zero_grad()
           x = x.to(device)
           mask = mask.to(device)
 
-          fcn32.train()
-          pred = fcn32(x)
+          model.train()
+          pred = model(x)
           #pred = pred.squeeze()
           #mask = mask.squeeze()
-
-          #print('i =',i)
-
           loss = criterion(pred,mask)
-          all_loss_train.append(loss.item())
+          iou,treshold = metric.iou(pred.argmax(dim=1),mask)
+          p_acc = metric.scores(pred.argmax(dim=1),mask)["Pixel Accuracy"]
+          print(i,"iou",iou,"treshold",treshold,"accuracy",p_acc)
+          writer.add_scalar('Loss/train',loss.item(),ep)
+          writer.add_scalar('MIOU/train',iou,ep)
+          writer.add_scalar('Accuracy/train',p_acc,ep)
+          writer.add_scalar('Treshold/train',treshold,ep)
           loss.backward()
-
-          all_iou.append(float(iou(pred.argmax(dim=1),mask)))
+          all_loss_train.append(loss.item())
+          all_iou.append(iou)
 
           optimizer.step()
-          optimizer.zero_grad()
-
+          
     loss_train.append(np.array(all_loss_train).mean()) #.item() pour eviter fuite memoire
     iou_train.append(np.array(all_iou).mean())
     all_loss_train = []
     all_iou = []
+
     for i,(x,mask) in enumerate(dataloader_val):
           x = x.to(device)
           mask = mask.to(device)
 
-          fcn32.eval()
+          model.eval()
           with torch.no_grad():
-            pred = fcn32(x)
+            pred = model(x)
           #pred = pred.squeeze()
           #mask = mask.squeeze()
-
           loss = criterion(pred,mask)
+          iou,treshold = metric.iou(pred.argmax(dim=1),mask)
+          p_acc = metric.scores(pred.argmax(dim=1),mask)["Pixel Accuracy"]
+          writer.add_scalar('Loss/test',loss.item(),ep)
+          writer.add_scalar('MIOU/test',iou,ep)
+          writer.add_scalar('Accuracy/test',p_acc,ep)
+          writer.add_scalar('Treshold/test',treshold,ep)
           all_loss_test.append(loss.item())
-          all_iou.append(float(iou(pred.argmax(dim=1),mask)))
+          all_iou.append(iou)
       
     loss_test.append(np.array(all_loss_test).mean())
     iou_test.append(np.array(all_iou).mean())
@@ -116,4 +135,12 @@ for ep in range(n_epochs):
         print("Classe prédite : ",class_pred)
         print("Classe réelle : ",class_mask)
       except:
-        print('something with the plot image function')
+        print('something wrong with the plot image function')
+      try:
+        writer.add_image('Mask/pred',pred.argmax(dim=1)[i].cpu())
+        writer.add_image('Mask/ground_truth',mask.cpu())
+        writer.add_image('Mask/input',x.cpu())
+      except:
+        print('something wrong with writer.add_image')
+
+torch.save(model,SAVE_DIR)

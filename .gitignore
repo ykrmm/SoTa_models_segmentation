@@ -3,3 +3,7 @@ model_saved/
 runs
 model_saved
 .DS_Store
+metrics/__pycache__/
+models/__pycache__/
+utils/__pycache__/
+__pycache__/
