@@ -33,17 +33,14 @@ class FCN32_VGG16(torch.nn.Module): # Archi FCN-32s du papier
         # on ne garde pas l'avg pool
         # [512,7,7]
         
-        self.conv1 = nn.Conv2d(512, 4096, 7, 7,padding=2)
+        self.conv1 = nn.Conv2d(512, 4096, 7,padding=3)
         self.relu1 = nn.ReLU(inplace=True)
         self.relu2 = nn.ReLU(inplace=True)
         self.dropout = nn.Dropout()
-        self.conv2 = nn.Conv2d(4096,4096,kernel_size=(1,1),padding=2)
-        self.conv3 = nn.Conv2d(4096,21,kernel_size=(1,1),padding=1)       
+        self.conv2 = nn.Conv2d(4096,4096,kernel_size=(1,1),padding=0)
+        self.conv3 = nn.Conv2d(4096,21,kernel_size=(1,1),padding=0)
 
-        ### get the weights from the fc layer
-        #self.conv1.load_state_dict({"weight":fc1["weight"].view(4096, 512, 7, 7),
-         #                         "bias":fc1["bias"]})
-
+        # Transform fc layer of vgg into convolution 
         self.conv1.weight = nn.Parameter(vgg16.classifier[0].weight.view(4096,512,7,7))
         self.conv1.bias = vgg16.classifier[0].bias
         self.conv2.weight = nn.Parameter(vgg16.classifier[3].weight.unsqueeze(2).unsqueeze(3))

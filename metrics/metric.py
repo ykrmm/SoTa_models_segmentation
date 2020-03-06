@@ -57,11 +57,11 @@ def scores(label_trues, label_preds, n_class=21):
     }
 
 def evaluate_model(model,val_loader,criterion=torch.nn.CrossEntropyLoss(ignore_index=21),nclass=21,device="cpu"):
-  loss_test = []
-  iou_test = []
-  pixel_accuracy = []
-  weight_iou = []
-  for i,(x,mask) in enumerate(val_loader):
+    loss_test = []
+    iou_test = []
+    pixel_accuracy = []
+    weight_iou = []
+    for i,(x,mask) in enumerate(val_loader):
         x = x.to(device)
         mask = mask.to(device)
 
@@ -71,22 +71,27 @@ def evaluate_model(model,val_loader,criterion=torch.nn.CrossEntropyLoss(ignore_i
 
         loss = criterion(pred,mask)
         loss_test.append(loss.item())
-        
-        s = scores(pred.max(dim=1)[1],mask, n_class=nclass)
+
+        s = scores(pred.max(dim=1)[1],mask)
+        ioU = float(iou(pred.argmax(dim=1),mask))
         """
-          return {
-            "Pixel Accuracy": acc,
-            "Mean Accuracy": acc_cls,
-            "Frequency Weighted IoU": fwavacc,
-            "Mean IoU": mean_iu,
-            "Class IoU": cls_iu,
+        return {
+        "Pixel Accuracy": acc,
+        "Mean Accuracy": acc_cls,
+        "Frequency Weighted IoU": fwavacc,
+        "Mean IoU": mean_iu,
+        "Class IoU": cls_iu,
         }
         """
-        iou_test.append(s["Mean IoU"])
+        iou_test.append(ioU)
         pixel_accuracy.append(s["Pixel Accuracy"])
         weight_iou.append(s["Frequency Weighted IoU"])
+    print("Mean IOU :",np.array(iou_test).mean(),"Frequency Weighted IOU :",np.array(weight_iou).mean(),"Pixel Accuracy :",np.array(pixel_accuracy).mean(),"Loss Validation :",np.array(loss_test).mean())
 
-   
+ 
+    
 
-  print("Mean IOU :",np.array(iou_test).mean(),"Frequency Weighted IOU :",np.array(weight_iou).mean(),\
-        "Pixel Accuracy :",np.array(pixel_accuracy).mean(),"Loss Validation :",np.array(loss_test).mean())
+
+
+    
+

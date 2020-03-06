@@ -50,7 +50,7 @@ n_epochs = 175
 writer = SummaryWriter()
 criterion = nn.CrossEntropyLoss(ignore_index=21)
 
-
+print_image = False
 SAVE_DIR_CNAM = '/home/yannis/Documents/stage_segmentation/SoTa_models_segmentation/model_saved'
 SAVE_DIR_HOME = '/Users/ykarmim/Documents/Cours/Master/stage_segmentation/SoTa_models/saved_model'
 iou_train = []
@@ -114,7 +114,7 @@ for ep in range(n_epochs):
     all_loss_test = []
     all_iou = []
 
-    if ep%20==0:
+    if ep%20==0 and print_image:
       try:
         i = 0
         fig = plt.figure()
@@ -152,3 +152,5 @@ except:
     torch.save(model,SAVE_DIR_HOME)
   except:
     print('le modèle n\'a pas pu etre enregistré')
+
+metric.evaluate_model(model,dataloader_val,device=device)
