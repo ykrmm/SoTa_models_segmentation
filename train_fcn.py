@@ -37,7 +37,9 @@ from models import fcn32,fcn16,fcn8
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-voc = dataset.VOC_Dataset(dataroot='/Users/ykarmim/Documents/Cours/Master/stage_segmentation/dataset')
+dataroot = '/home/yannis/Documents/stage_segmentation/dataset'
+#dataroot = '/Users/ykarmim/Documents/Cours/Master/stage_segmentation/dataset'
+voc = dataset.VOC_Dataset(batch_size=1,dataroot=dataroot)
 dataloader_train,dataloader_val = voc.get_dataloader()
 model = fcn32.get_fcn32(device)
 
@@ -49,7 +51,8 @@ writer = SummaryWriter()
 criterion = nn.CrossEntropyLoss(ignore_index=21)
 
 
-SAVE_DIR = '/Users/ykarmim/Documents/Cours/Master/stage_segmentation/SoTa_models/saved_model'
+SAVE_DIR_CNAM = '/home/yannis/Documents/stage_segmentation/SoTa_models_segmentation/model_saved'
+SAVE_DIR_HOME = '/Users/ykarmim/Documents/Cours/Master/stage_segmentation/SoTa_models/saved_model'
 iou_train = []
 loss_train = []
 iou_test = []
@@ -72,7 +75,6 @@ for ep in range(n_epochs):
           loss = criterion(pred,mask)
           iou,treshold = metric.iou(pred.argmax(dim=1),mask)
           p_acc = metric.scores(pred.argmax(dim=1),mask)["Pixel Accuracy"]
-          print(i,"iou",iou,"treshold",treshold,"accuracy",p_acc)
           writer.add_scalar('Loss/train',loss.item(),ep)
           writer.add_scalar('MIOU/train',iou,ep)
           writer.add_scalar('Accuracy/train',p_acc,ep)
@@ -143,4 +145,10 @@ for ep in range(n_epochs):
       except:
         print('something wrong with writer.add_image')
 
-torch.save(model,SAVE_DIR)
+try:
+  torch.save(model,SAVE_DIR_CNAM)
+except:
+  try:
+    torch.save(model,SAVE_DIR_HOME)
+  except:
+    print('le modèle n\'a pas pu etre enregistré')
