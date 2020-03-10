@@ -17,10 +17,9 @@ https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
 
 #### FCN 32
 
-<img src="figures/meanIoufcn32.png" width="300">
+<img src="figures/meanIoufcn32.png" width="300"> <img src="figures/lossfcn32.png" width="300">  
 
 
-<img src="figures/lossfcn32.png" width="300">
 
 
 <img src="figures/inputfcn32.png" width="300">
@@ -31,10 +30,7 @@ https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
 
 #### FCN 16
 
-<img src="figures/meanIOUfcn16.png" width="300">
-
-
-<img src="figures/loss_fcn16.png" width="300">
+<img src="figures/meanIOUfcn16.png" width="300"> <img src="figures/loss_fcn16.png" width="300">
 
 
 <img src="figures/inputfcn32.png" width="300">
@@ -45,19 +41,13 @@ https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
 
 #### FCN 8 
 
-<img src="figures/meanIOUfcn8.png" width="300">
-
-
-<img src="figures/lossFCN8.png" width="300">
+<img src="figures/meanIOUfcn8.png" width="300"> <img src="figures/lossFCN8.png" width="300">
 
 
 <img src="figures/inputfcn32.png" width="300">
 
 
-<img src="figures/maskTrainFCN8.png" width="300">
-
-
-<img src="figures/maskPersonFcn8.png" width="300">
+<img src="figures/maskTrainFCN8.png" width="300"> <img src="figures/maskPersonFcn8.png" width="300">
 
 Test on a picture of my cat :
 
