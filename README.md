@@ -1,4 +1,7 @@
 # State of the arts segmentations models
+
+Implementation and experiments are detailed in the notebooks/
+
 ## Fully Convolutional Neural Network for Semantic Segmentation
 https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
 
@@ -55,5 +58,7 @@ https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
 
 
 <img src="figures/maskPersonFcn8.png" width="300">
+
+Test on a picture of my cat :
 
 <img src="figures/my_cat.jpg" width="300">
