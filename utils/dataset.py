@@ -43,20 +43,20 @@ class VOC_Dataset:
 
       dataroot = os.path.join(dataroot,year)
       self.train_dataset = dset.VOCSegmentation(dataroot,year=year, image_set='train', download=True,transform=transforms.Compose([
-                                                    transforms.Resize((224,224)),
+                                                    transforms.Resize((384,512)),
                                                     transforms.ToTensor(),
                                                     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
                                                 ]),target_transform=transforms.Compose([
-                                                    transforms.Resize((224,224)),
+                                                    transforms.Resize((384,512)),
                                                     transforms.Lambda(to_tensor_target)
                                                 ]))
 
-      self.val_dataset = dset.VOCSegmentation(dataroot,year='2012', image_set='val', download=True,transform=transforms.Compose([
-                                                    transforms.Resize((224,224)),
+      self.val_dataset = dset.VOCSegmentation(dataroot,year=year, image_set='val', download=True,transform=transforms.Compose([
+                                                    transforms.Resize((384,512)),
                                                     transforms.ToTensor(),
                                                     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
                                                 ]),target_transform=transforms.Compose([
-                                                    transforms.Resize((224,224)),
+                                                    transforms.Resize((384,512)),
                                                     transforms.Lambda(to_tensor_target)
                                                 ]))
       self.VOC_CLASSES = ('background',  # always index 0

@@ -11,3 +11,4 @@ photo_test_prive/
 saved_model/
 test_golri.ipynb
 .ipynb_checkpoints/
+.vscode/
