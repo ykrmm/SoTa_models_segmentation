@@ -52,3 +52,19 @@ https://people.eecs.berkeley.edu/~jonlong/long_shelhamer_fcn.pdf
 Test on a picture of my cat :
 
 <img src="figures/my_cat.jpg" width="300">
+
+#### Table results
+I followed the original hyper parameters that were in the paper. Except that I resized the images in 224x224.
+That could explain the difference between the score on the paper and mine. 
+|           | FCN 32 | FCN 16 | FCN 8 |
+| ----------| ------ | ------ | ----- |
+| Mean IOU  | 0.497   |  0.523  |  0.561 |
+
+Original score in the paper 
+
+|           | FCN 32 | FCN 16 | FCN 8 |
+| ----------| ------ | ------ | ----- |
+| Mean IOU  | 0.594   |  0.624  |  0.627 |
+
+
+
