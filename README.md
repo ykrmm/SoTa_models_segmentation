@@ -56,9 +56,13 @@ Test on a picture of my cat :
 #### Table results
 I followed the original hyper parameters that were in the paper. Except that I resized the images in 224x224.
 That could explain the difference between the score on the paper and mine. 
-|           | FCN 32 | FCN 16 | FCN 8 |
+|    224x224       | FCN 32 | FCN 16 | FCN 8 |
 | ----------| ------ | ------ | ----- |
 | Mean IOU  | 0.497   |  0.523  |  0.561 |
+
+|    512x384       | FCN 32 | FCN 16 | FCN 8 |
+| ----------| ------ | ------ | ----- |
+| Mean IOU  | 0.541   |  0.572  |  0.591 |
 
 Original score in the paper 
 
